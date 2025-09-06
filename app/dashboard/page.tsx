@@ -1,121 +1,75 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Plus, Search, Filter, Grid3X3, List, MoreHorizontal } from "lucide-react"
+import { Search, Filter, Grid3X3, List } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { MobileNav } from "@/components/mobile-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import { AlertBanner } from "@/components/alert-banner"
+import { ProjectCard } from "@/components/project-card"
+import { NewProjectDialog } from "@/components/new-project-dialog"
+import { useAuth } from "@/contexts/AuthContext"
+import { apiService, Project } from "@/lib/api"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-
-const mockProjects = [
-  {
-    id: 1,
-    name: "Pleased Turtle",
-    description: "Mobile app redesign project",
-    status: "active",
-    progress: 75,
-    teamMembers: 4,
-    dueDate: "2024-02-15",
-    color: "bg-emerald-500",
-    tasks: 12,
-    completedTasks: 9,
-  },
-  {
-    id: 2,
-    name: "Accomplished Dog",
-    description: "Website development and optimization",
-    status: "active",
-    progress: 60,
-    teamMembers: 6,
-    dueDate: "2024-02-28",
-    color: "bg-purple-500",
-    tasks: 18,
-    completedTasks: 11,
-  },
-  {
-    id: 3,
-    name: "Incomparable Camel",
-    description: "Brand identity and marketing campaign",
-    status: "planning",
-    progress: 25,
-    teamMembers: 3,
-    dueDate: "2024-03-10",
-    color: "bg-blue-500",
-    tasks: 8,
-    completedTasks: 2,
-  },
-  {
-    id: 4,
-    name: "Decisive Tiger",
-    description: "Data analytics dashboard implementation",
-    status: "active",
-    progress: 90,
-    teamMembers: 5,
-    dueDate: "2024-02-05",
-    color: "bg-orange-500",
-    tasks: 15,
-    completedTasks: 14,
-  },
-  {
-    id: 5,
-    name: "Tangible Swan",
-    description: "Customer support system upgrade",
-    status: "review",
-    progress: 95,
-    teamMembers: 2,
-    dueDate: "2024-01-30",
-    color: "bg-pink-500",
-    tasks: 10,
-    completedTasks: 10,
-  },
-  {
-    id: 6,
-    name: "Attentive Bee",
-    description: "API integration and documentation",
-    status: "active",
-    progress: 40,
-    teamMembers: 4,
-    dueDate: "2024-03-15",
-    color: "bg-yellow-500",
-    tasks: 20,
-    completedTasks: 8,
-  },
-]
 
 export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [searchQuery, setSearchQuery] = useState("")
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const { user, signOut } = useAuth()
+  const router = useRouter()
 
-  const filteredProjects = mockProjects.filter(
+  useEffect(() => {
+    if (!user) {
+      router.push("/")
+      return
+    }
+    loadProjects()
+  }, [user, router])
+
+  const loadProjects = async () => {
+    setLoading(true)
+    try {
+      const projectsData = await apiService.getProjects()
+      setProjects(projectsData)
+    } catch (error) {
+      console.error('Error loading projects:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAddMember = async (projectId: string, userId: string) => {
+    try {
+      const success = await apiService.addTeamMemberToProject(projectId, userId)
+      if (success) {
+        // Refresh projects to show updated team members
+        loadProjects()
+      }
+    } catch (error) {
+      console.error('Error adding team member:', error)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push("/")
+  }
+
+  const filteredProjects = projects.filter(
     (project) =>
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800"
-      case "planning":
-        return "bg-blue-100 text-blue-800"
-      case "review":
-        return "bg-purple-100 text-purple-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+  if (!user) {
+    return null
   }
 
   return (
@@ -142,19 +96,23 @@ export default function DashboardPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="w-8 h-8 md:w-10 md:h-10 cursor-pointer">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                  <AvatarFallback className="text-xs md:text-sm">JD</AvatarFallback>
+                  <AvatarImage src={user.avatar || "/placeholder.svg?height=32&width=32"} />
+                  <AvatarFallback className="text-xs md:text-sm">
+                    {user.firstName[0]}{user.lastName[0]}
+                  </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="flex items-center gap-2 p-2">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                    <AvatarFallback className="text-xs">JD</AvatarFallback>
+                    <AvatarImage src={user.avatar || "/placeholder.svg?height=32&width=32"} />
+                    <AvatarFallback className="text-xs">
+                      {user.firstName[0]}{user.lastName[0]}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">John Doe</p>
-                    <p className="text-xs text-muted-foreground">john.doe@synergysphere.com</p>
+                    <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
                 </div>
                 <DropdownMenuSeparator />
@@ -166,7 +124,7 @@ export default function DashboardPage() {
                 </DropdownMenuItem>
                 <DropdownMenuItem>Help & Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -219,12 +177,7 @@ export default function DashboardPage() {
                 <h2 className="text-2xl md:text-3xl font-bold font-[family-name:var(--font-playfair)]">Projects</h2>
                 <p className="text-muted-foreground text-sm md:text-base">Manage and track your team projects</p>
               </div>
-              <Link href="/dashboard/projects/new">
-                <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Project
-                </Button>
-              </Link>
+              <NewProjectDialog onProjectCreated={loadProjects} />
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -266,76 +219,33 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div
-            className={
-              viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" : "space-y-4"
-            }
-          >
-            {filteredProjects.map((project) => (
-              <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${project.color}`} />
-                      <div className="min-w-0 flex-1">
-                        <CardTitle className="text-base md:text-lg font-[family-name:var(--font-playfair)] truncate">
-                          {project.name}
-                        </CardTitle>
-                        <Badge variant="secondary" className={`${getStatusColor(project.status)} text-xs mt-1`}>
-                          {project.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="flex-shrink-0">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit Project</DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Archive</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="mb-4 text-sm line-clamp-2">{project.description}</CardDescription>
-
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Progress</span>
-                        <span>{project.progress}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div
-                          className="bg-primary h-2 rounded-full transition-all"
-                          style={{ width: `${project.progress}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground">
-                      <span>
-                        {project.completedTasks}/{project.tasks} tasks
-                      </span>
-                      <span>{project.teamMembers} members</span>
-                    </div>
-
-                    <div className="text-xs md:text-sm text-muted-foreground">
-                      Due: {new Date(project.dueDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <span className="ml-2">Loading projects...</span>
+            </div>
+          ) : (
+            <div
+              className={
+                viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" : "space-y-4"
+              }
+            >
+              {filteredProjects.map((project) => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  onAddMember={handleAddMember}
+                />
+              ))}
+            </div>
+          )}
           </div>
 
           {filteredProjects.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No projects found matching your search.</p>
+              <p className="text-muted-foreground">
+                {loading ? "Loading projects..." : "No projects found matching your search."}
+              </p>
             </div>
           )}
         </main>

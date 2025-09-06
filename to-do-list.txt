@@ -19,21 +19,11 @@ my tasks page:
 analytics page:
 	overview, projects, tasks, team all buttons diplay incomplete data, they show only boxes.
 
-about page:
-	rename work backend
-
-solutions page:
-	
-
-profile page:
-	backend	
 
 create pages:
 clicking 'work' , ' solutions ' , 'about' doesn't do anything near the home button.
 
 create a chat page:
-<<<<<<< Updated upstream
-=======
 	message button the team page should open the main chat page on the left navigation bar
 	all persons chatted and new chats to start option to be included in this page
 	groups can also be there just like WhatsApp but color matched to the entire project
@@ -45,10 +35,6 @@ help and support page:
 	should involve 10 faq's and one text box to ask query
 
 
-these are the features that needs to be done immediately.
+these are the features that needs to be done immediately. some require both backend some require front end some require both
 
- 
-		
-	
-	
->>>>>>> Stashed changes
+

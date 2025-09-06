@@ -23,6 +23,3 @@ profile page:
 	backend	
 
 create a chat page:
-		
-	
-	

@@ -1,3 +1,7 @@
+login page:
+	reduce size
+	put theme mode
+	tac page not available
 project page:
 	project card exp
 	new page with backend fetch

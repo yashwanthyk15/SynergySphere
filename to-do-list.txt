@@ -1,0 +1,24 @@
+project page:
+	project card exp
+	new page with backend fetch
+
+team page:
+	add team members
+	invite members
+
+task page:
+	tasks backend
+
+about page:
+	rename work backend
+
+solutions page:
+	
+
+profile page:
+	backend	
+
+create a chat page:
+		
+	
+	

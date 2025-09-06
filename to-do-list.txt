@@ -1,23 +1,17 @@
-alter existing pages:
-in every page there should be "Back to Home page" option redirecting back to home
-in the top right icon for profile and other settings the options are not visible in every page, the options should include back to homepage	
-
 login page:
-	login not working but sign up is working .
-	forgot password is not working.
+	reduce size
+	put theme mode
+	tac page not available
+project page:
+	project card exp
+	new page with backend fetch
 
-dashboard page:
-	selecting options on clicking the three-dots buttons on the top left of project on the dashboard doesn't do anything.
-	clicking on the project box the project should expand and the details should display.
-	Filter doesn't work near the search box.
+team page:
+	add team members
+	invite members
 
-my tasks page:
-	creating new tasks are not getting displayed on the main my tasks page.
-	stats of tasks on the top are not working.
-
-
-analytics page:
-	overview, projects, tasks, team all buttons diplay incomplete data, they show only boxes.
+task page:
+	tasks backend
 
 about page:
 	rename work backend
@@ -28,27 +22,4 @@ solutions page:
 profile page:
 	backend	
 
-create pages:
-clicking 'work' , ' solutions ' , 'about' doesn't do anything near the home button.
-
 create a chat page:
-<<<<<<< Updated upstream
-=======
-	message button the team page should open the main chat page on the left navigation bar
-	all persons chatted and new chats to start option to be included in this page
-	groups can also be there just like WhatsApp but color matched to the entire project
-
-calender page:
-	should open calender with all remaining due tasks
-
-help and support page:
-	should involve 10 faq's and one text box to ask query
-
-
-these are the features that needs to be done immediately.
-
- 
-		
-	
-	
->>>>>>> Stashed changes
